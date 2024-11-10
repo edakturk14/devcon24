@@ -24,17 +24,27 @@ Welcome to the Devcon 2024 Workshop! In this session, we’ll build a **gasless 
 npx create-eth@latest
 ```
 
-- Start the app
+- Make sure to choose foundry as your smart contract development environment
+
+  > ? What solidity framework do you want to use? foundry"
+
+### 2. Start the app and test it out
 
 ```
-yarn chain // start your local anvil chain
-yarn deploy // deploy contracts to your local Anvil chain
-yarn start // start the app
+yarn chain // start your local anvil env
+yarn deploy // deploys a test smart contract to the local network
+yarn start // start your NextJS app
 ```
 
-### 2. Add an NFT Contract
+Visit: http://localhost:3000
 
-- Create a new contract file in the `app/foundry` folder.
+### 3. Add a new NFT Contract
+
+- Install the requirments for solmate/openzepplin:
+
+`forge install transmissions11/solmate Openzeppelin/openzeppelin-contracts`
+
+- Create a new contract file called `NFTContract.sol` in the `packages/foundry/contracts` folder.
 - Implement an **ERC721 contract** using **Solmate**. Refer to this guide for help: [Solmate NFT Tutorial](https://book.getfoundry.sh/tutorials/solmate-nft).
 
 ```
@@ -44,34 +54,40 @@ contract MyNFT is ERC721 {
 }
 ```
 
-### 3. Create a new deployment script and deploy the NFT Contract
+### 4. Create a new deployment script and deploy the NFT Contract
 
-```
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+- Create a new deployment script in the `packages/foundry/script` folder. You can check the contents of the `DeployYourContract.s`to give an idea on what the script should look like.
+- _Hint:_ make sure to adjust the parameters based on your constructor.
 
-import "../contracts/NFT.sol";
-import "./DeployHelpers.s.sol";
-
-contract DeployNFT is ScaffoldETHDeploy {
-  // use `deployer` from `ScaffoldETHDeploy`
-  function run() external ScaffoldEthDeployerRunner {
-    NFT nftContract = new NFT("My NFT", "MNFT");
-    console.logString(
-      string.concat(
-        "NFT contract deployed at: ", vm.toString(address(nftContract))
-      )
-    );
-  }
-}
-```
+- Add the new deployment script to `Deploy.s.sol`
+- _Note: you may need to update the solidity version on the contract file._
 
 - Go to the **Debug** tab in your SE2 app to review the contract details and confirm the deployment.
 
-### 4. Edit the NFT Contract
+### 5. Start Building the Frontend
+
+- Create a new folder named `/nft` in your project directory.
+- Use **DaisyUI components** to build an intuitive and visually appealing NFT minting interface. Check them out here: https://daisyui.com/components/card/
+
+```
+<div className="items-center flex flex-col">
+
+<h1: nft collection details>
+<daisy ui card>
+
+</div>
+```
+
+- **Test** the frontend to make sure it works smoothly and provides a good user experience.
+
+### 6. Add contract function calls to the frontend
+
+- We want to be able to mint the nft from the frontend. Here is how: https://docs.scaffoldeth.io/hooks/useScaffoldWriteContract
+- Get the address of the connected account. You can use the useAccount hook in wagmi (more: https://docs.scaffoldeth.io/recipes/GetCurrentBalanceFromAccount)
+
+### 7. Edit the NFT Contract
 
 - Add a **maximum cap** to restrict the number of users who can mint your NFT.
-- **Generate an image** using [DALL-E](https://openai.com/dall-e/) and attach it to your NFT contract.
 - Once you've made the edits, **re-deploy the contract** to update your app.
 
 ```
@@ -85,19 +101,21 @@ function mintTo(address recipient) public payable returns (uint256) {
 }
 ```
 
-### 5. Start Building the Frontend
+### 8. Add the max supply to your frontend
 
-- Create a new folder named `/nft` in your project directory.
-- Use **DaisyUI components** to build an intuitive and visually appealing NFT minting interface.
-- **Test** the frontend to make sure it works smoothly and provides a good user experience.
+- You want to have the tokenId and the max supply. Simply use the useScaffoldRead hooks for this.
+- _Hint: When interacting with Ethereum smart contracts, numeric values are often returned as BigNumber so you'll need to change the values to Number(xx)_
 
-### 6. Enable Gasless Transactions
+[to add: - Add an SVG image to your NFT.
+]
+
+### 9. Enable Gasless Transactions
 
 - We'll implement **ERC7677** to use a paymaster, allowing users to mint NFTs without gas fees (sponsored by you). Learn more here: [ERC7677](https://www.erc7677.xyz/).
 - Visit **CDP** to create a paymaster URL.
 - Modify your SE2 app to support only the **Coinbase Smart Wallet** for secure and gasless transactions.
 
-### 7. Ship Your Project!
+### 10. Ship Your Project!
 
 - Run `yarn generate` to create an account for deployment.
 - Deploy your project with `yarn deploy --network baseSepolia`.
