@@ -187,13 +187,7 @@ Create a link in `Header.tsx` to navigate to the NFT minting page.
   },
 ```
 
-### 7. Gassless Transactions
-
-- We'll implement **ERC7677** to use a paymaster, allowing users to mint NFTs without gas fees (sponsored by you). Learn more here: [ERC7677](https://www.erc7677.xyz/).
-- Visit **CDP** to create a paymaster URL.
-- Modify your SE2 app to support only the **Coinbase Smart Wallet** for secure and gasless transactions.
-
-### 8. Update the NFT Contract
+### 7. Update the NFT Contract
 
 - Update the contract to keep track of the addresses and the index of whom has minted the NFT.
 
@@ -201,10 +195,57 @@ Create a link in `Header.tsx` to navigate to the NFT minting page.
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 ```
 
-### 9. Update the frontend
+### 8. Update the frontend
 
 - Create a new compontents called "MyHoldings.tsx" to display the NFT's that the user owns.
 - Add <MyHoldings /> to the page.tsx
+
+### 9. Gassless Transactions & Coinbase Smart Wallet
+
+- Modify your SE2 app to support only the **Coinbase Smart Wallet**. Go `wagmiConnectors.ts` remove other wallet settings, and add the following:
+
+```
+coinbaseWallet.preference = "smartWalletOnly";
+const wallets = [coinbaseWallet];
+```
+
+- We'll implement **ERC7677** to use a paymaster, allowing users to mint NFTs without gas fees (sponsored by you). Learn more here: [ERC7677](https://www.erc7677.xyz/).
+- Add a new gassless mint button:
+
+```
+<button
+  className="btn btn-primary w-45"
+  onClick={async () => {
+    try {
+      if (!NFT) return;
+      // TODO: update the ENV
+      const paymasterURL = process.env.NEXT_PUBLIC_PAYMASTER_URL;
+      await writeContractsAsync({
+        contracts: [
+          {
+            address: NFT.address,
+            abi: NFT.abi,
+            functionName: "safeMint",
+            args: [connectedAddress],
+          },
+        ],
+        capabilities: {
+          paymasterService: {
+            url: paymasterURL,
+          },
+        },
+      });
+      notification.success("NFT minted");
+    } catch (e) {
+      console.error("Error minting NFT:", e);
+    }
+  }}
+>
+  Gasless Mint
+</button>
+```
+
+- Get the PAYMASTER URL from coinbase CDP and add it to env `NEXT_PUBLIC_PAYMASTER_URL`
 
 ### 10. Ship Your Project!
 
@@ -213,3 +254,5 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 - **Test the app thoroughly** to ensure everything works perfectly!
 
 There you go, a gassless nft app! 🚀
+
+Send it out to the world: yarn vercel:yolo
