@@ -8,7 +8,8 @@ Welcome to the Devcon 2024 Workshop! In this session, we’ll build a **gasless 
 - Foundry: A blazing-fast, modular toolkit for Ethereum smart contract development.
 - ERC-721: Standard for NFT contracts.
 - ERC-4337: The EIP that enables Account Abstraction, foundational for the Coinbase Smart Wallet.
-- ERC-7677: Set Up Paymaster with ERC-7677 for gas sponsorship
+- ERC-5792: Batch transactions + Gas sponsorship for smart wallets
+- ERC-7677: Set Up Paymaster with ERC-7677 for gas sponsorship (cdp url)
 - DaisyUI: A Tailwind CSS-based component library for styling.
 
 ---
@@ -42,7 +43,7 @@ Visit: http://localhost:3000
 
 - Go to "https://wizard.openzeppelin.com/#erc721" to get a template for an ERC721 contract.
 
-  - Make sure to fill the baseURI with an image for your NFT.
+  - Make sure to fill the baseURI with an image for your NFT. (https://austingriffith.com/images/paintings/buffalo.jpg). (idea: checkout the speedrunethereum challange1 for some sample images: https://github.com/scaffold-eth/se-2-challenges/blob/challenge-0-simple-nft/packages/nextjs/utils/simpleNFT/nftsMetadata.ts)
   - rename the contract as "NFT"
   - Add a maxSupply to limit the number of NFTs that can be minted.
 
