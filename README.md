@@ -247,7 +247,17 @@ const wallets = [coinbaseWallet];
 
 - Get the PAYMASTER URL from coinbase CDP and add it to env `NEXT_PUBLIC_PAYMASTER_URL`
 
-### 10. Ship Your Project!
+### 10. Change the target network to baseSepolia
+
+```
+targetNetworks: [chains.baseSepolia],
+
+// The interval at which your front-end polls the RPC servers for new data
+// it has no effect if you only target the local network (default is 4000)
+pollingInterval: 3000,
+```
+
+### 11. Deploy Your Contract to base sepolia!
 
 - Run `yarn generate` to create an account for deployment.
 - Deploy your project with `yarn deploy --network baseSepolia`.
@@ -255,4 +265,8 @@ const wallets = [coinbaseWallet];
 
 There you go, a gassless nft app! 🚀
 
-Send it out to the world: yarn vercel:yolo
+### 12. Ship Your Project!
+
+- Send it out to the world: yarn vercel:yolo
+- Add the env var to the vercel
+- Redeploy on Vercel!
