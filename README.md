@@ -6,10 +6,10 @@ In this worksop, we’ll build a **gasless NFT minting app** using **Scaffold-ET
 
 - Scaffold-ETH 2: A developer toolset for building decentralized apps quickly.
 - Foundry: A blazing-fast, modular toolkit for Ethereum smart contract development.
-- ERC-721: Standard for NFT contracts.
-- ERC-4337: The EIP that enables Account Abstraction, foundational for the Coinbase Smart Wallet.
-- ERC-5792: Batch transactions + Gas sponsorship for smart wallets
-- ERC-7677: Set Up Paymaster with ERC-7677 for gas sponsorship (cdp url)
+- EIP-721: Standard for NFT contracts.
+- EIP-4337 (Account Abstraction): This EIP allows smart contracts to function as wallets, enabling advanced features like batching and gas sponsorship, which are essential for user-friendly dApps.
+- EIP-5792 (Batch Transactions & Gas Sponsorship): Defines how smart contract wallets can batch transactions and use Paymasters for gas coverage.
+- EIP-7677 (Paymaster Contract): Standardizes gas sponsorship, making it easier for dApps to cover user transaction fees, enhancing the user experience.
 - DaisyUI: A Tailwind CSS-based component library for styling.
 
 ---
