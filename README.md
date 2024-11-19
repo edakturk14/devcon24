@@ -1,6 +1,6 @@
 # Devcon 2024 Workshop
 
-Welcome to the Devcon 2024 Workshop! In this session, we’ll build a **gasless NFT minting app** using **Scaffold-ETH 2**. You'll learn to set up your development environment, deploy an ERC721 NFT contract, integrate a paymaster to cover gas fees for your users. By the end, you'll have a fully functional and user-friendly NFT minting app that allows users to mint NFTs without paying for gas, using the Coinbase Smart Wallet.
+In this worksop, we’ll build a **gasless NFT minting app** using **Scaffold-ETH 2**. You'll learn to set up your development environment, deploy an ERC721 NFT contract, integrate a paymaster to cover gas fees for your users. By the end, you'll have a NFT minting app that allows users to mint NFTs without paying for gas, using the Coinbase Smart Wallet.
 
 ### Tools & Resources We'll Use
 
@@ -18,18 +18,18 @@ Welcome to the Devcon 2024 Workshop! In this session, we’ll build a **gasless 
 
 ### 1. Set Up an SE2 App
 
-- **Prerequisites**: Ensure you have **Foundry** installed and ready to use.
-- **Note**: When creating the app, **do not add extra spaces** in the title.
+- **Prerequisites**: Make sure you have **Foundry** installed.
 
 ```
 npx create-eth@latest
 ```
 
-- Make sure to choose foundry as your smart contract development environment
+- **Note**: When creating the app, **do not add extra spaces** in the title.
+- Choose foundry as your smart contract development environment
 
   > ? What solidity framework do you want to use? foundry"
 
-### 2. Start the app and test it out
+Once downloaded, run your app:
 
 ```
 yarn chain // start your local anvil env
@@ -39,51 +39,45 @@ yarn start // start your NextJS app
 
 Visit: http://localhost:3000
 
-### 3. Add a new NFT Contract
+_Features to explore:_
+
+- Burner wallets
+- Built in faucet
+- Debug contracts tab
+
+### 2. Add a new NFT Contract
 
 - Go to "https://wizard.openzeppelin.com/#erc721" to get a template for an ERC721 contract.
 
-  - Make sure to fill the baseURI with an image for your NFT. (https://austingriffith.com/images/paintings/buffalo.jpg). (idea: checkout the speedrunethereum challange1 for some sample images: https://github.com/scaffold-eth/se-2-challenges/blob/challenge-0-simple-nft/packages/nextjs/utils/simpleNFT/nftsMetadata.ts)
-  - rename the contract as "NFT"
-  - Add a maxSupply to limit the number of NFTs that can be minted.
+  - Make the contract Mintable and Enumerable
+  - Fill the baseURI with an image for your NFT. (idea: generate an image with Dall-e)
 
-- Create a new file called `NFT.sol` in the `packages/foundry/contracts` folder. Here is how the contract should look like:
+- Create a new file called `NFT.sol` in the `packages/foundry/contracts` folder. Add you contract here.
 
-```
-// Example ERC721 Contract
-// SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.22;
+Some changes to the wizard generated contract:
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-contract NFT is ERC721, Ownable {
-    uint256 public nextTokenId;
-    uint256 public maxSupply = 10;
-
-    constructor(address initialOwner)
-        ERC721("MyToken", "MTK")
-        Ownable(initialOwner)
-    {}
-
-    function _baseURI() internal pure override returns (string memory) {
-        return "https://www.allaboutbirds.org/news/wp-content/uploads/2024/09/TOC-Autumn24-Ruby-crowned_Kinglet-Christopher_T-ML609692481-FI-480x360.jpg";
+- Make `_nextTokenId` public so that we count remaining supply
+- Add `uint256 public maxSupply = 10;` to limit the number of NFTs that can be minted.
+- Create `mapping(address => bool) public alreadyMinted;`
+- Update safeMint with extra require statements + make alreadyMinted[to] = true
+  ```solidity
+  function safeMint(address to) public {
+    require(_nextTokenId < maxSupply, "Max supply reached");
+    require(!alreadyMinted[to], "Already minted");
+    alreadyMinted[to] = true; // add this
+    uint256 tokenId = _nextTokenId++;
+    _safeMint(to, tokenId);
     }
+  ```
 
-    function safeMint(address to) public {
-      require(nextTokenId < maxSupply, "Max supply reached");
-        uint256 tokenId = nextTokenId++;
-        _safeMint(to, tokenId);
-    }
-}
-```
+### 3. Create a new deployment script and deploy the NFT Contract
 
-### 4. Create a new deployment script and deploy the NFT Contract
+- Create a new deployment script in the `packages/foundry/script` folder. Check the contents of the `DeployYourContract.s` and make the adjusments for the new NFT contract.
 
-- Create a new deployment script in the `packages/foundry/script` folder. You can check the contents of the `DeployYourContract.s`to give an idea on what the script should look like. Make sure to adjust the parameters based on your constructor.
+  - Change import instead import NFT.sol
+  - Change the line of YourContract ⇒ `NFT nft = new NFT()` (we had removed the deployer from constructor)
 
-- Add the new deployment script to `Deploy.s.sol`. And deploy the contracts.
+- Add the new deployment script to `Deploy.s.sol`. And deploy the contracts by running:
 
 ```
 yarn deploy --reset
@@ -91,127 +85,96 @@ yarn deploy --reset
 
 - Go to the **Debug** tab in your SE2 app to review the contract details and confirm the deployment.
 
-### 5. Start Building the Frontend
+### 4. Start Building the Frontend
 
-- Create a new folder named `/nft` in your project directory.
-- Use **DaisyUI components** to build an intuitive and visually appealing NFT minting interface. Check them out here: https://daisyui.com/components/card/
-- Use the useScaffoldReadContract hook to read the max supply and the next token ID from the NFT contract.
-- Use the useScaffoldWriteContract hook to mint the NFT.
+- Create a new folder named `/nft` in `packages/nextjs/app` and a page.tsx file inside it.
 
-```
-"use client";
+_We'll use **DaisyUI components** to build a pretty NFT minting interface. Check them out here: https://daisyui.com/components/card/_
 
-import { useEffect, useState } from "react";
-import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { useWriteContracts } from "wagmi/experimental";
-import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { notification } from "~~/utils/scaffold-eth";
+Steps:
 
-const NFT: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+- Get max supply for the NFT collection and tokenID with the useScaffoldReadContract Hooks.
 
-  const { data: supply } = useScaffoldReadContract({
-    contractName: "NFT",
-    functionName: "MAX_SUPPLY",
-  });
+  ```
+    const { data: supply } = useScaffoldReadContract({
+      contractName: "NFT",
+      functionName: "maxSupply",
+    });
 
-  const { data: tokenID } = useScaffoldReadContract({
-    contractName: "NFT",
-    functionName: "nextTokenId",
-  });
+    const { data: tokenID } = useScaffoldReadContract({
+      contractName: "NFT",
+      functionName: "_nextTokenId",
+    });
+  ```
 
-  const { writeContractAsync: writeScaffoldContractAsync } = useScaffoldWriteContract("NFT");
+- Get the NFT's left to mint.
 
-  const { data: NFT } = useDeployedContractInfo("NFT");
-  // wagmi hook to batch write to multiple contracts (EIP-5792 specific)
-  const { writeContractsAsync } = useWriteContracts();
-
+  ```
   const [remaining, setRemaining] = useState<number | null>(null);
   useEffect(() => {
     if (supply !== undefined) {
       setRemaining(Number(supply) - (tokenID ? Number(tokenID) : 0));
     }
   }, [tokenID, supply]);
+  ```
 
-  return (
-    <>
-      <div className="flex items-center flex-col mt-10">
-        <h1 className="text-center">
-          <span className="block text-4xl font-bold">Mint a Bird</span>
-          <span className="block text-2xl font-bold mt-1">NFTs left: {remaining}</span>
-        </h1>
-        <div className="card bg-base-100 w-96 shadow-xl mt-5">
-          <div className="card-body items-center">
-            <div className="card-actions justify-end">
-              {connectedAddress ? (
-                <div className="flex space-x-2">
-                  <button
-                    className="btn btn-primary"
-                    onClick={async () => {
-                      try {
-                        await writeScaffoldContractAsync({
-                          functionName: "safeMint",
-                          args: [connectedAddress],
-                        });
-                      } catch (e) {
-                        console.error("Error minting NFT:", e);
-                      }
-                    }}
-                  >
-                    Mint NFT
-                  </button>
-                </div>
-              ) : (
-                <span className="text-gray-500">Connect Wallet</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
+- Create a mint button with the useScaffoldWriteContract hooks.
 
-export default NFT;
+  ```
+  const { writeContractAsync: writeScaffoldContractAsync } = useScaffoldWriteContract("NFT");
 
-```
+  <button
+  className="btn btn-primary"
+  onClick={async () => {
+    try {
+      await writeScaffoldContractAsync({
+        functionName: "safeMint",
+        args: [connectedAddress],
+      });
+    } catch (e) {
+      console.error("Error minting NFT:", e);
+    }
+  }}
+  >
+  Mint NFT
+  </button>
+  ```
 
-### 6. Create a link in the header
+- Create a new component to display the NFTs that the user has. For this create a new component `app/nft/_components/MyHoldings.tsx`. We're using the same component from the simple NFT challange: <link to the component>. We'll then use this in the `app/nft/page.tsx`
+
+Run your app to make sure all is working.
+
+### 5. Create a link in the header
 
 Create a link in `Header.tsx` to navigate to the NFT minting page.
 
 ```
-  {
-    label: "NFT",
-    href: "/nft",
-  },
+{
+label: "NFT",
+href: "/nft",
+},
 ```
 
-### 7. Update the NFT Contract
-
-- Update the contract to keep track of the addresses and the index of whom has minted the NFT.
-
-```
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-```
-
-### 8. Update the frontend
-
-- Create a new compontents called "MyHoldings.tsx" to display the NFT's that the user owns.
-- Add <MyHoldings /> to the page.tsx
-
-### 9. Gassless Transactions & Coinbase Smart Wallet
+### 6. Add coinbase smart wallet + gasless transaction
 
 - Modify your SE2 app to support only the **Coinbase Smart Wallet**. Go `wagmiConnectors.ts` remove other wallet settings, and add the following:
 
 ```
 coinbaseWallet.preference = "smartWalletOnly";
+
 const wallets = [coinbaseWallet];
 ```
 
-- We'll implement **ERC7677** to use a paymaster, allowing users to mint NFTs without gas fees (sponsored by you). Learn more here: [ERC7677](https://www.erc7677.xyz/).
-- Add a new gassless mint button:
+- We need two new hooks from wagmi to add to out `page.tsx`. Go to wagmi.sh → react → scroll very bottom and find `useWriteContracts` (useWriteContracts is for EIP-5792)
+
+```
+// wagmi hook to batch write to multiple contracts (EIP-5792 specific)
+const { writeContractsAsync } = useWriteContracts();
+// add this later to read address and contract abi
+const { data: NFT } = useDeployedContractInfo("NFT");
+```
+
+- Create a new `Gasless mint button`. This will use a paymaster to cover the transaction cost.
 
 ```
 <button
@@ -247,27 +210,27 @@ const wallets = [coinbaseWallet];
 ```
 
 - Get the PAYMASTER URL from coinbase CDP and add it to env `NEXT_PUBLIC_PAYMASTER_URL`
+  - onchain tools ⇒ Paymaster ⇒ configuration (make sure you switch to base sepolia)
+  - Create a `.env.local` and add `NEXT_PUBLIC_PAYMASTER_URL`
 
-### 10. Change the target network to baseSepolia
+### 7. Deploy your contract to Base Sepolia
+
+- Run `yarn generate` to create an account for deployment.
+- Update the `.env` inside foundry with `scaffold-eth-custom`
+- Send some base sepolia funds to the deployer account `yarn account`
+- Deploy your contract with `yarn deploy --network baseSepolia`
+
+### 8. Update your app to point to Base Sepolia and Ship it
+
+- Update `scaffold.config.ts`:
 
 ```
 targetNetworks: [chains.baseSepolia],
 
-// The interval at which your front-end polls the RPC servers for new data
-// it has no effect if you only target the local network (default is 4000)
 pollingInterval: 3000,
 ```
 
-### 11. Deploy Your Contract to base sepolia!
-
-- Run `yarn generate` to create an account for deployment.
-- Deploy your project with `yarn deploy --network baseSepolia`.
-- **Test the app thoroughly** to ensure everything works perfectly!
+- Ship to Vercel: `yarn vercel:yolo`
+- Go to vercel deployment UI -> add enviornment variable -> paste the `NEXT_PUBLIC_PAYMASTER_URL` and then run `yarn vercel:yolo` again
 
 There you go, a gassless nft app! 🚀
-
-### 12. Ship Your Project!
-
-- Send it out to the world: yarn vercel:yolo
-- Add the env var to the vercel
-- Redeploy on Vercel!
