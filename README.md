@@ -1,15 +1,15 @@
 # Devcon 2024 Workshop
 
-In this worksop, we’ll build a **gasless NFT minting app** using **Scaffold-ETH 2**. You'll learn to set up your development environment, deploy an ERC721 NFT contract, integrate a paymaster to cover gas fees for your users. By the end, you'll have a NFT minting app that allows users to mint NFTs without paying for gas, using the Coinbase Smart Wallet.
+In this workshop, we’ll build a **gasless NFT minting app** using **Scaffold-ETH 2**. You'll learn to set up your development environment, deploy an ERC721 NFT contract, integrate a paymaster to cover gas fees for your users. By the end, you'll have a NFT minting app that allows users to mint NFTs without paying for gas, using the Coinbase Smart Wallet.
 
 ### Tools & Resources We'll Use
 
-- Scaffold-ETH 2: A developer toolset for building decentralized apps quickly.
+- [Scaffold-ETH 2](https://scaffoldeth.io/): A developer toolset for building decentralized apps quickly.
 - Foundry: A blazing-fast, modular toolkit for Ethereum smart contract development.
-- EIP-721: Standard for NFT contracts.
-- EIP-4337 (Account Abstraction): This EIP allows smart contracts to function as wallets, enabling advanced features like batching and gas sponsorship, which are essential for user-friendly dApps.
-- EIP-5792 (Batch Transactions & Gas Sponsorship): Defines how smart contract wallets can batch transactions and use Paymasters for gas coverage.
-- EIP-7677 (Paymaster Contract): Standardizes gas sponsorship, making it easier for dApps to cover user transaction fees, enhancing the user experience.
+- [EIP-721](https://eips.ethereum.org/EIPS/eip-721): Standard for NFT contracts.
+- [EIP-4337](https://www.erc4337.io/) (Account Abstraction): This EIP allows smart contracts to function as wallets, enabling advanced features like batching and gas sponsorship, which are essential for user-friendly dApps.
+- [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) (Wallet call api): Methods for batching transactions and using paymasters to cover gas fees, streamlining wallet interactions for better efficiency and experience.
+- [EIP-7677](https://eips.ethereum.org/EIPS/eip-7677) (Paymaster Contract): Standardizes gas sponsorship, making it easier for dApps to cover user transaction fees, enhancing the user experience.
 - DaisyUI: A Tailwind CSS-based component library for styling.
 
 ---
