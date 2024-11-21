@@ -1,8 +1,10 @@
 # Gasless NFT minting app w/ScaffoldETH + Coinbase Smart Wallet
 
-*Devcon 24' workshop*
+*For Devcon 24' workshop, built by [Shiv Bhonde](https://github.com/technophile-04) & Eda Akturk*
 
 In this workshop, we’ll build a **gasless NFT minting app** using **Scaffold-ETH 2**. By the end, you'll have a NFT minting app that allows users to mint NFTs without paying for gas, using the Coinbase Smart Wallet.
+
+![Screenshot 2024-11-21 at 11.29.56](https://hackmd.io/_uploads/SkCyxdhzke.png)
 
 ### Tools & Resources We'll Use
 
@@ -143,7 +145,7 @@ Steps:
   </button>
   ```
 
-- Create a new component to display the NFTs that the user has. For this create a new component `app/nft/_components/MyHoldings.tsx`. We're using the same component from the simple NFT challange: <link to the component>. We'll then use this in the `app/nft/page.tsx`
+- Create a new component to display the NFT's that the user has. Here is how the page should be: `app/nft/_components/MyHoldings.tsx`. We're using the same [component](https://github.com/scaffold-eth/se-2-challenges/blob/challenge-0-simple-nft/packages/nextjs/app/myNFTs/_components/MyHoldings.tsx) from the simple NFT challange of [speedrunethereum](https://speedrunethereum.com/). Import this into  `app/nft/page.tsx`
 
 Run your app to make sure all is working.
 
@@ -168,7 +170,7 @@ coinbaseWallet.preference = "smartWalletOnly";
 const wallets = [coinbaseWallet];
 ```
 
-- We need two new hooks from wagmi to add to out `page.tsx`. Go to wagmi.sh → react → scroll very bottom and find `useWriteContracts` (useWriteContracts is for EIP-5792)
+- We will use wagmis experimental hook called [`useWriteContracts`](https://wagmi.sh/react/api/hooks/useWriteContracts), and add it to our `page.tsx`
 
 ```
 // wagmi hook to batch write to multiple contracts (EIP-5792 specific)
@@ -212,7 +214,7 @@ const { data: NFT } = useDeployedContractInfo("NFT");
 </button>
 ```
 
-- Get the PAYMASTER URL from coinbase CDP and add it to env `NEXT_PUBLIC_PAYMASTER_URL`
+- Get the PAYMASTER URL from [Coinbase CDP](https://www.coinbase.com/en-tr/developer-platform) and add it to env `NEXT_PUBLIC_PAYMASTER_URL`
   - onchain tools ⇒ Paymaster ⇒ configuration (make sure you switch to base sepolia)
   - Create a `.env.local` and add `NEXT_PUBLIC_PAYMASTER_URL`
 
